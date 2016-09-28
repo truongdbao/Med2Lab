@@ -52,7 +52,7 @@ def SelectSymptoms (set_of_symptoms,text): # create a list of symptoms from the 
 def UpdateVitalSigns (text, old_vitals): #obtain vital signs from a text
     new_vitals = VitalSigns(-1,-1,-1,-1,-1,-1)
 
-    match = re.match(r'.*?(temperature|temp| T |).*?(\d+).*', text)
+    match = re.match(r'.*?(temperature|temp).*?(\d+\.?\d*).*', text)
     if (match) and (old_vitals.temperature == -1):
         new_vitals.temperature = match.group(2)
     else:
