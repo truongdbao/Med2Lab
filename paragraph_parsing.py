@@ -17,9 +17,6 @@ for word in symptoms_file:
     word = word.rstrip()
     symptoms.append(word)
 
-# Determine the sentence that has the intro and  chief complaint
-# Pattern of the chief complaint sentence:
-# (... [age] ... [gender] ... with ...[chief symptoms] ... [timing]...)
 
 cc_line = ''
 age = 0
@@ -31,25 +28,42 @@ negative_symptoms = []
 
 for line in lines:
     match_cc = re.match(r'.*?(\d+| [A-Z ]+)(-year-old| years old| year old|-month-old| montold).*?(male|female|boy|girl|man|gentleman|woman|lady).*',line,re.I)
-    vitals = process_history_info.UpdateVitalSigns(line, vitals)
-    if match_cc: # this is the chief complain line
+
+    # Determine the sentence that has the intro and  chief complaint
+    # Pattern of the chief complaint sentence:
+    # (... [age] ... [gender] ... with ...[chief symptoms] ... [timing]...)
+
+    vitals = process_history_info.UpdateVitalSigns(line, vitals)   # try to look for vital signs contained in this line.
+
+    if match_cc:
+        # this is indeed the sentence that has the chief complaint and the intro
         cc_line = match_cc.group()
         age = process_history_info.ObtainAge(match_cc.group(1))
         age_unit = process_history_info.ObtainAgeUnit(match_cc.group(2))
         gender = process_history_info.ObtainGender(match_cc.group(3))
+
         cc_symptoms = process_history_info.SelectSymptoms(symptoms,cc_line)
-    else: # not a chief complain line
+        # attempt to get as much symptoms containing from the chief complaint sentence. these are the primary symptoms of the case
+
+    else:
+        # not a chief complain line
+
+        # first, check to see if this is the 'pertinent-negatives' sentence, which usually formats '... denies [negative symptoms] ...'
         negative_statement = re.match (r'(.*?)(denied|denies|deny)(.*)',line)
         new_negative_symptoms = []
         new_positive_symptoms = []
         if negative_statement:
+            # special processing for the 'pertinent-negatives' - some pertinent-negative statements also had some pertinent-positives first
+            # for example "He said that he had a cough, but denied having running nose ..."
             new_positive_symptoms = process_history_info.SelectSymptoms(symptoms,negative_statement.group(1))
             new_negative_symptoms = process_history_info.SelectSymptoms(symptoms,negative_statement.group(3))
         else:
+            # if not the pertinent-negative statments, just go and look for pertinent-positives throughout the statement
             new_positive_symptoms = process_history_info.SelectSymptoms(symptoms, line)
 
+        # all done, now load the new pertinent-negatives and pertinent-positives to the main lists
         for symptom in new_negative_symptoms:
-            if not (symptom in negative_symptoms):
+            if not (symptom in negative_symptoms) and not (symptom in cc_symptoms):
                 negative_symptoms.append(symptom)
         for symptom in new_positive_symptoms:
             if not (symptom in positive_symptoms) and not (symptom in cc_symptoms):
@@ -86,4 +100,5 @@ if vitals.respiratory_rate > -1:
     print 'Respiratory Rate:', vitals.respiratory_rate
 if vitals.saturation > -1:
     print 'O2 Saturation:', vitals.saturation
+
 
