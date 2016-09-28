@@ -1,11 +1,11 @@
-case = open('case01' ,'r').read() # load the case file
+case = open('case03' ,'r').read() # load the case file
 symptoms_file = open ('symptoms' , 'r')
 
 import re  # Load regular expression module
 import process_history_info
 from process_history_info import VitalSigns
 
-lines = case.split('.')
+lines = case.split('. ')
 
 # Initiate an empty vitals object
 
@@ -49,7 +49,7 @@ for line in lines:
         # not a chief complain line
 
         # first, check to see if this is the 'pertinent-negatives' sentence, which usually formats '... denies [negative symptoms] ...'
-        negative_statement = re.match (r'(.*?)(denied|denies|deny)(.*)',line)
+        negative_statement = re.match (r'(.*?)(denied|denies|deny|does not have|did not have)(.*)',line)
         new_negative_symptoms = []
         new_positive_symptoms = []
         if negative_statement:
@@ -79,13 +79,21 @@ print 'Chief complaints:'
 for symptom in cc_symptoms:
     print '    ',symptom
 
+"""
 print '\n'
 print 'Pertinent positive symptoms mentioned in this case:'
+"""
+
+print '\n'
+print 'Pertinent symptoms mentioned in this case:'
 for symptom in positive_symptoms:
     print '    ',symptom
 
+"""
 print '\n'
 print 'Pertinent negative symptoms mentioned in this case:'
+"""
+
 for symptom in negative_symptoms:
     print '    ',symptom
 
