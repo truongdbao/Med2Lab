@@ -79,13 +79,21 @@ print 'Chief complaints:'
 for symptom in cc_symptoms:
     print '    ',symptom
 
+"""
 print '\n'
 print 'Pertinent positive symptoms mentioned in this case:'
+"""
+
+print '\n'
+print 'Pertinent symptoms mentioned in this case:'
 for symptom in positive_symptoms:
     print '    ',symptom
 
+"""
 print '\n'
 print 'Pertinent negative symptoms mentioned in this case:'
+"""
+
 for symptom in negative_symptoms:
     print '    ',symptom
 
